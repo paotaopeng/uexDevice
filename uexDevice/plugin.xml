@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<uexplugins>
+
+    <plugin
+        className="org.zywx.wbpalmstar.plugin.uexdevice.EUExDevice"
+        uexName="uexDevice" version="3.0" build="0">
+        <method name="vibrate" />
+        <method name="cancelVibrate" />
+        <method name="getInfo" />
+    </plugin>
+
+</uexplugins>
