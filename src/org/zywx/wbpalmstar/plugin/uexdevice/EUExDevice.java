@@ -30,6 +30,7 @@ import android.os.StatFs;
 import android.os.Vibrator;
 import android.telephony.TelephonyManager;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.widget.Toast;
 
 public class EUExDevice extends EUExBase {
@@ -45,6 +46,7 @@ public class EUExDevice extends EUExBase {
 	public static final int F_JV_CONNECT_3G = 1;
 	public static final int F_JV_CONNECT_GPRS = 2;
 	public static final int F_JV_CONNECT_4G = 3;
+	public static final int F_JV_CONNECT_UNKNOWN = 4;
 
 	private Vibrator m_v;
 
@@ -467,6 +469,9 @@ public class EUExDevice extends EUExBase {
 						case TelephonyManager.NETWORK_TYPE_IDEN:
 						case TelephonyManager.NETWORK_TYPE_UNKNOWN:
 							status = F_JV_CONNECT_4G;
+							break;
+						default:
+							status = F_JV_CONNECT_UNKNOWN;
 							break;
 						}
 						break;

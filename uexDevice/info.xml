@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <uexplugins>
     <plugin
-        uexName="uexDevice" version="3.0.0" build="0">
-        <info>0:设备能力功能插件</info>
+        uexName="uexDevice" version="3.0.1" build="1">
+        <info>1:解决移动网络在4G转3g的时候，返回无网络问题</info>
+		<build>0:设备能力功能插件</build>
     </plugin>
 </uexplugins>
