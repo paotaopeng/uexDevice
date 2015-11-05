@@ -1,0 +1,4 @@
+<resources>
+    <!--uexDevice-->
+    <string name="plugin_uexDevice_invalid_params">Invalid Params</string>
+</resources>

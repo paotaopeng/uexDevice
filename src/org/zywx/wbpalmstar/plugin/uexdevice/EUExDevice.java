@@ -1,9 +1,31 @@
 package org.zywx.wbpalmstar.plugin.uexdevice;
 
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.LineNumberReader;
-import java.lang.reflect.Method;
+import android.app.Activity;
+import android.app.Service;
+import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.res.Configuration;
+import android.graphics.Bitmap;
+import android.hardware.Camera;
+import android.location.LocationManager;
+import android.media.AudioManager;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
+import android.net.wifi.WifiInfo;
+import android.net.wifi.WifiManager;
+import android.os.Build;
+import android.os.Environment;
+import android.os.PowerManager;
+import android.os.StatFs;
+import android.os.Vibrator;
+import android.provider.Settings;
+import android.telephony.TelephonyManager;
+import android.util.DisplayMetrics;
+import android.view.Display;
+import android.view.View;
+import android.view.WindowManager;
+import android.widget.Toast;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -13,31 +35,24 @@ import org.zywx.wbpalmstar.engine.EBrowserView;
 import org.zywx.wbpalmstar.engine.universalex.EUExBase;
 import org.zywx.wbpalmstar.engine.universalex.EUExCallback;
 
-import android.app.Activity;
-import android.app.Service;
-import android.content.Context;
-import android.content.SharedPreferences;
-import android.content.res.Configuration;
-import android.hardware.Camera;
-import android.location.LocationManager;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
-import android.net.wifi.WifiInfo;
-import android.net.wifi.WifiManager;
-import android.os.Build;
-import android.os.Environment;
-import android.os.StatFs;
-import android.os.Vibrator;
-import android.telephony.TelephonyManager;
-import android.util.DisplayMetrics;
-import android.util.Log;
-import android.widget.Toast;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.LineNumberReader;
+import java.lang.reflect.Method;
+import java.math.BigDecimal;
+import java.util.Date;
 
 public class EUExDevice extends EUExBase {
 
 	public static final String tag = "uexDevice_";
 	public static final String CALLBACK_NAME_DEVICE_GET_INFO = "uexDevice.cbGetInfo";
-	public static final String onFunction_orientationChange = "uexDevice.onOrientationChange";
+    public static final String CALLBACK_NAME_DEVICE_SCREEN_CAPTURE = "uexDevice.cbScreenCapture";
+    public static final String CALLBACK_NAME_DEVICE_GET_VOLUME = "uexDevice.cbGetVolume";
+    public static final String CALLBACK_NAME_DEVICE_GET_BRIGHTNESS = "uexDevice.cbGetScreenBrightness";
+
+    public static final String onFunction_orientationChange = "uexDevice.onOrientationChange";
 
 	public static final int F_DEVICE_INFO_ID_ORIENTATION_PORTRAIT = 1; // 竖屏
 	public static final int F_DEVICE_INFO_ID_ORIENTATION_LANDSCAPE = 2;// 横屏
@@ -419,7 +434,7 @@ public class EUExDevice extends EUExBase {
 		try {
 			ConnectivityManager cm = (ConnectivityManager) mContext
 					.getApplicationContext().getSystemService(
-							Context.CONNECTIVITY_SERVICE);
+                            Context.CONNECTIVITY_SERVICE);
 			if (cm != null) {
 				NetworkInfo info = cm.getActiveNetworkInfo();
 				if (info != null
@@ -439,7 +454,7 @@ public class EUExDevice extends EUExBase {
 		try {
 			ConnectivityManager cm = (ConnectivityManager) mContext
 					.getApplicationContext().getSystemService(
-							Context.CONNECTIVITY_SERVICE);
+                            Context.CONNECTIVITY_SERVICE);
 			if (cm != null) {
 				NetworkInfo info = cm.getActiveNetworkInfo();
 				if (info != null && info.isAvailable()) {
@@ -566,4 +581,280 @@ public class EUExDevice extends EUExBase {
 		return type;
 	}
 
+	public void screenCapture(final String[] params) {
+        ((Activity)mContext).runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                handleScreenCapture(params);
+            }
+        });
+    }
+
+    public void handleScreenCapture(String [] params) {
+        if (params == null || params.length < 1) {
+            Toast.makeText(mContext, finder.getString("plugin_uexDevice_invalid_params"), Toast.LENGTH_SHORT).show();
+            return;
+        }
+        double quality = 1.0;
+        try {
+            quality = Double.parseDouble(params[0]);
+        } catch (NumberFormatException e) {
+            Toast.makeText(mContext, finder.getString("plugin_uexDevice_invalid_params"), Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+
+        WindowManager windowManager = ((Activity)mContext).getWindowManager();
+        Display display = windowManager.getDefaultDisplay();
+
+        //获取屏幕
+        View decorview = ((Activity)mContext).getWindow().getDecorView();
+        decorview.setDrawingCacheEnabled(true);
+        Bitmap bitmap = decorview.getDrawingCache();
+        File dir = new File(Environment.getExternalStorageDirectory(),
+                "image_temp");
+        if (!dir.exists()) {
+            dir.mkdirs();
+        }
+        String filepath = dir.getAbsolutePath() + File.separator + new Date().getTime() + ".jpg" ;
+        File file = new File(filepath);
+
+        FileOutputStream fos = null;
+        try {
+            file.createNewFile();
+            fos = new FileOutputStream(file);
+            if (null != fos) {
+                bitmap.compress(Bitmap.CompressFormat.JPEG, (int) (quality * 100), fos);
+                fos.flush();
+            }
+            bitmap.recycle();
+            JSONObject jsonObject = new JSONObject();
+            try {
+                jsonObject.put("savePath", file.getAbsolutePath());
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+            String js = SCRIPT_HEADER + "if(" + CALLBACK_NAME_DEVICE_SCREEN_CAPTURE + "){"
+                    + CALLBACK_NAME_DEVICE_SCREEN_CAPTURE + "('" + jsonObject.toString() + "');}";
+            onCallback(js);
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            if (fos != null) {
+                try {
+                    fos.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+
+    //听筒和外音的切换
+    public void setAudioCategory(final String [] params) {
+        ((Activity)mContext).runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                handleSetAudioCategory(params);
+            }
+        });
+    }
+    public void handleSetAudioCategory(String [] params) {
+        if (params == null || params.length < 1) {
+            Toast.makeText(mContext, finder.getString("plugin_uexDevice_invalid_params"), Toast.LENGTH_SHORT).show();
+            return;
+        }
+        //0 扩音器  1 听筒
+        int status = 0;
+        try {
+            status = Integer.parseInt(params[0]);
+            if (status != 1) {
+                status = 0;
+            }
+        } catch (NumberFormatException e) {
+            Toast.makeText(mContext, finder.getString("plugin_uexDevice_invalid_params"), Toast.LENGTH_SHORT).show();
+            return;
+        }
+        AudioManager am = (AudioManager) ((Activity)mContext).getSystemService(Context.AUDIO_SERVICE);
+        if (status == 0) {
+			am.setMode(AudioManager.MODE_NORMAL);
+		} else {
+            am.setMode(AudioManager.MODE_IN_CALL);
+
+        }
+    }
+
+    public void setVolume(final String [] params) {
+        ((Activity)mContext).runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                handleSetVolume(params);
+            }
+        });
+    }
+    public void handleSetVolume(String [] params) {
+        if (params == null || params.length < 1) {
+            Toast.makeText(mContext, finder.getString("plugin_uexDevice_invalid_params"), Toast.LENGTH_SHORT).show();
+            return;
+        }
+        double value = 0.0;
+        try {
+            value = Double.parseDouble(params[0]);
+        } catch (NumberFormatException e) {
+            Toast.makeText(mContext, finder.getString("plugin_uexDevice_invalid_params"), Toast.LENGTH_SHORT).show();
+            return;
+        }
+        if (value < 0 || value > 1) {
+            Toast.makeText(mContext, finder.getString("plugin_uexDevice_invalid_params"), Toast.LENGTH_SHORT).show();
+            return;
+        }
+        AudioManager am = (AudioManager) ((Activity)mContext).getSystemService(Context.AUDIO_SERVICE);
+        int maxValume = am.getStreamMaxVolume(AudioManager.STREAM_SYSTEM);
+        am.setStreamVolume(AudioManager.STREAM_SYSTEM, (int) (maxValume * value), AudioManager.FLAG_REMOVE_SOUND_AND_VIBRATE);
+    }
+
+    //获取音量大小,返回值的区间在0--1
+    public void getVolume(final String [] params) {
+        ((Activity)mContext).runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                handleGetVolume();
+            }
+        });
+    }
+    public void handleGetVolume() {
+        AudioManager am = (AudioManager) ((Activity)mContext).getSystemService(Context.AUDIO_SERVICE);
+        int currentVolumn = am.getStreamVolume(AudioManager.STREAM_SYSTEM);
+        int maxValume = am.getStreamMaxVolume(AudioManager.STREAM_SYSTEM);
+
+        double value = currentVolumn * 1.0 / maxValume;
+        //格式化
+        BigDecimal bigDecimal = new BigDecimal(value);
+        double result = bigDecimal.setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue();
+        JSONObject jsonObject = new JSONObject();
+        try {
+            jsonObject.put("volume", result);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        String js = SCRIPT_HEADER + "if(" + CALLBACK_NAME_DEVICE_GET_VOLUME + "){"
+                + CALLBACK_NAME_DEVICE_GET_VOLUME + "('" + jsonObject.toString() + "');}";
+        onCallback(js);
+    }
+
+    //屏幕常亮控制 0 取消常量，  1 代表常量
+    public void setScreenAlwaysBright(final String [] params) {
+        ((Activity)mContext).runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                handleSetScreenAlwaysBright(params);
+            }
+        });
+    }
+
+    public void handleSetScreenAlwaysBright(String [] params) {
+        if (params == null || params.length < 1) {
+            Toast.makeText(mContext, finder.getString("plugin_uexDevice_invalid_params"), Toast.LENGTH_SHORT).show();
+            return;
+        }
+        int status = 0;
+        try {
+            status = Integer.parseInt(params[0]);
+            if (status != 1) {
+                status = 0;
+            }
+        } catch (NumberFormatException e) {
+            Toast.makeText(mContext, finder.getString("plugin_uexDevice_invalid_params"), Toast.LENGTH_SHORT).show();
+            return;
+        }
+        PowerManager powerManager = (PowerManager) mContext.getSystemService(Activity.POWER_SERVICE);
+        PowerManager.WakeLock wakeLock = powerManager.newWakeLock(PowerManager.FULL_WAKE_LOCK, "My Lock");
+        wakeLock.setReferenceCounted(false);
+        if (status == 1) {
+            wakeLock.acquire();
+        } else {
+            wakeLock.release();
+        }
+    }
+
+    //屏幕亮度控制
+    public void setScreenBrightness(final String [] params) {
+        ((Activity)mContext).runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                handleSetScreenBrightness(params);
+            }
+        });
+    }
+
+    public void handleSetScreenBrightness(String [] params) {
+        if (params == null || params.length < 1) {
+            Toast.makeText(mContext, finder.getString("plugin_uexDevice_invalid_params"), Toast.LENGTH_SHORT).show();
+            return;
+        }
+        float brightness = 0;
+        try {
+            brightness = Float.parseFloat(params[0]);
+        } catch (NumberFormatException e) {
+            Toast.makeText(mContext, finder.getString("plugin_uexDevice_invalid_params"), Toast.LENGTH_SHORT).show();
+            return;
+        }
+        if (brightness < 0 || brightness > 1) {
+            Toast.makeText(mContext, finder.getString("plugin_uexDevice_invalid_params"), Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        WindowManager.LayoutParams lp = ((Activity) mContext).getWindow().getAttributes();
+        lp.screenBrightness = brightness;
+        ((Activity) mContext).getWindow().setAttributes(lp);
+        Settings.System.putInt(mContext.getContentResolver(), Settings.System.SCREEN_BRIGHTNESS, (int) (brightness * 255));
+    }
+
+    public void getScreenBrightness(final String [] params) {
+        ((Activity)mContext).runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                handleGetScreenBrightness();
+            }
+        });
+    }
+
+    public void handleGetScreenBrightness () {
+        int screenBrightness = 255;
+        try {
+            screenBrightness = Settings.System.getInt(mContext.getContentResolver(), Settings.System.SCREEN_BRIGHTNESS);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        double value = screenBrightness * 1.0 / 255;
+        //格式化
+        BigDecimal bigDecimal = new BigDecimal(value);
+        double result = bigDecimal.setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue();
+
+        JSONObject jsonObject = new JSONObject();
+        try {
+            jsonObject.put("brightness", result);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        String js = SCRIPT_HEADER + "if(" + CALLBACK_NAME_DEVICE_GET_BRIGHTNESS + "){"
+                + CALLBACK_NAME_DEVICE_GET_BRIGHTNESS + "('" + jsonObject.toString() + "');}";
+        onCallback(js);
+
+
+
+    }
+    public void openWiFiInterface(final String [] params) {
+        ((Activity)mContext).runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                handleOpenWiFiInterface();
+            }
+        });
+    }
+
+    public void handleOpenWiFiInterface() {
+        Intent wifiSettingsIntent = new Intent(Settings.ACTION_WIFI_SETTINGS);
+        startActivity(wifiSettingsIntent);
+    }
 }

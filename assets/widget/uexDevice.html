@@ -129,6 +129,16 @@ window.uexOnload = function() {
        uexWidgetOne.cbError=function(opCode,errorCode,errorInfo){
            alert(errorInfo);
            }
+
+    uexDevice.cbScreenCapture = function(info) {
+        alert(info);
+    }
+    uexDevice.cbGetVolume = function(info) {
+        alert(info);
+    }
+    uexDevice.cbGetScreenBrightness = function(info) {
+        alert(info);
+    }
 }
 </script>
 </head>
@@ -195,6 +205,23 @@ window.uexOnload = function() {
             </div>
 			<input class="btn" type="button" value="返回"
 				onclick="uexWindow.close(-1);">
+            <br/>
+            <input class="btn" type="button"
+                   value="截图" onclick="uexDevice.screenCapture('0.8');">
+            <input class="btn" type="button"
+                   value="听筒和扩音器的切换" onclick="uexDevice.setAudioCategory('1');">
+            <input class="btn" type="button"
+                   value="设置音量" onclick="uexDevice.setVolume('1');">
+            <input class="btn" type="button"
+                   value="获取音量" onclick="uexDevice.getVolume();">
+            <input class="btn" type="button"
+                   value="屏幕常亮控制" onclick="uexDevice.setScreenAlwaysBright(1);">
+            <input class="btn" type="button"
+                   value="设置屏幕亮度" onclick="uexDevice.setScreenBrightness(0.9);">
+            <input class="btn" type="button"
+                   value="获取屏幕亮度" onclick="uexDevice.getScreenBrightness();">
+            <input class="btn" type="button"
+                   value="打开wifi" onclick="uexDevice.openWiFiInterface();">
         </div>
     </div>
 </body>

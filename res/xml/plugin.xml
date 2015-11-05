@@ -7,5 +7,13 @@
         <method name="vibrate" />
         <method name="cancelVibrate" />
         <method name="getInfo" />
-    </plugin>
+        <method name="screenCapture"/>
+        <method name="setAudioCategory"/>
+       <method name="setVolume"/>
+       <method name="getVolume"/>
+       <method name="setScreenAlwaysBright"/>
+       <method name="setScreenBrightness"/>
+       <method name="openWiFiInterface"/>
+       <method name="getScreenBrightness" />
+   </plugin>
 </uexplugins>
