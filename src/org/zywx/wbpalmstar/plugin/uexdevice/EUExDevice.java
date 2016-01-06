@@ -2,6 +2,7 @@ package org.zywx.wbpalmstar.plugin.uexdevice;
 
 import android.app.Activity;
 import android.app.Service;
+import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -21,7 +22,9 @@ import android.os.StatFs;
 import android.os.Vibrator;
 import android.provider.Settings;
 import android.telephony.TelephonyManager;
+import android.text.TextUtils;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.Display;
 import android.view.View;
 import android.view.WindowManager;
@@ -31,9 +34,13 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.zywx.wbpalmstar.base.BDebug;
 import org.zywx.wbpalmstar.base.ResoureFinder;
+import org.zywx.wbpalmstar.engine.DataHelper;
 import org.zywx.wbpalmstar.engine.EBrowserView;
 import org.zywx.wbpalmstar.engine.universalex.EUExBase;
 import org.zywx.wbpalmstar.engine.universalex.EUExCallback;
+import org.zywx.wbpalmstar.plugin.uexdevice.vo.FunctionDataVO;
+import org.zywx.wbpalmstar.plugin.uexdevice.vo.ResultIsEnableVO;
+import org.zywx.wbpalmstar.plugin.uexdevice.vo.ResultSettingVO;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -43,6 +50,7 @@ import java.io.LineNumberReader;
 import java.lang.reflect.Method;
 import java.math.BigDecimal;
 import java.util.Date;
+import java.util.IllegalFormatCodePointException;
 
 public class EUExDevice extends EUExBase {
 
@@ -856,5 +864,88 @@ public class EUExDevice extends EUExBase {
     public void handleOpenWiFiInterface() {
         Intent wifiSettingsIntent = new Intent(Settings.ACTION_WIFI_SETTINGS);
         startActivity(wifiSettingsIntent);
+    }
+
+    public void isFunctionEnable(final String [] params) {
+        ResultIsEnableVO resultVO = new ResultIsEnableVO();
+        if (params == null || params.length < 1){
+            errorCallback(0,0,"error params");
+            return;
+        }
+        FunctionDataVO dataVO = DataHelper.gson.fromJson(params[0], FunctionDataVO.class);
+        if (dataVO == null || TextUtils.isEmpty(dataVO.getSetting())){
+
+        }else{
+            String setting = dataVO.getSetting().toUpperCase();
+            resultVO.setSetting(dataVO.getSetting());
+            boolean result;
+            if (setting.equals(JsConst.SETTING_GPS)){
+                result = DeviceUtils.isGPSEnable(mContext);
+            }else if(setting.equals(JsConst.SETTING_BLUETOOTH)){
+                result = DeviceUtils.isBluetoothEnable();
+            }else if (setting.equals(JsConst.SETTING_NETWORK)){
+                int connectionStatus = getNetworkStatus();
+                if (connectionStatus == F_JV_CONNECT_UNREACHABLE
+                        || connectionStatus == F_JV_CONNECT_UNKNOWN){
+                    result = false;
+                }else {
+                    result = true;
+                }
+            }else{
+                errorCallback(0,0,"error params");
+                return;
+            }
+            resultVO.setIsEnable(result);
+        }
+        callBackPluginJs(JsConst.CALLBACK_IS_FUNCTION_ENABLE, DataHelper.gson.toJson(resultVO));
+    }
+
+    public void openSetting(final String [] params) {
+        ResultSettingVO resultVO = new ResultSettingVO();
+        if (params == null || params.length < 1){
+            errorCallback(0, 0, "error params");
+            return;
+        }
+        FunctionDataVO dataVO = DataHelper.gson.fromJson(params[0], FunctionDataVO.class);
+        String setting = null;
+        if (!TextUtils.isEmpty(dataVO.getSetting())){
+            setting = dataVO.getSetting().toUpperCase();
+            resultVO.setSetting(dataVO.getSetting());
+        }
+        int errorCode = openSetting(setting);
+        resultVO.setErrorCode(errorCode);
+        callBackPluginJs(JsConst.CALLBACK_OPEN_SETTING, DataHelper.gson.toJson(resultVO));
+    }
+
+    private void callBackPluginJs(String methodName, String jsonData){
+        String js = SCRIPT_HEADER + "if(" + methodName + "){"
+                + methodName + "('" + jsonData + "');}";
+        onCallback(js);
+    }
+
+    private int openSetting(String setting){
+        Intent intent = new Intent();
+        if (TextUtils.isEmpty(setting)){
+            intent.setAction(Settings.ACTION_SETTINGS);
+        }else if (setting.equals(JsConst.SETTING_GPS)){
+            intent.setAction(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+        }else if (setting.equals(JsConst.SETTING_BLUETOOTH)){
+            intent.setAction(Settings.ACTION_BLUETOOTH_SETTINGS);
+        }else if(setting.equals(JsConst.SETTING_NETWORK)){
+            intent.setAction(Settings.ACTION_DATA_ROAMING_SETTINGS);
+        }else{
+            intent.setAction(Settings.ACTION_SETTINGS);
+        }
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        try
+        {
+            mContext.startActivity(intent);
+        } catch(ActivityNotFoundException ex){
+            ex.printStackTrace();
+            return JsConst.ERROR_CODE_FAIL;
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+        return JsConst.ERROR_CODE_SUCCESS;
     }
 }

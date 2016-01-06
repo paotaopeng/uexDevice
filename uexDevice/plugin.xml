@@ -15,6 +15,7 @@
         <method name="setScreenBrightness"/>
         <method name="openWiFiInterface"/>
         <method name="getScreenBrightness" />
-
+        <method name = "isFunctionEnable"/>
+        <method name = "openSetting"/>
     </plugin>
 </uexplugins>

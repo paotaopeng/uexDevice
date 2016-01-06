@@ -8,7 +8,7 @@
 <title>设备信息功能</title>
 <script type="text/javascript">
 
-window.uexOnload = function() {	
+window.uexOnload = function() {
 
     uexDevice.onOrientationChange = function(mode){
         if(mode == 1){
@@ -141,7 +141,31 @@ window.uexOnload = function() {
     uexDevice.cbGetScreenBrightness = function(info) {
         alert(info);
     }
+    uexDevice.cbIsFunctionEnable = function(info){
+        alert(info);
+    }
+    uexDevice.cbOpenSetting = function(info){
+        alert(info);
+    }
 }
+
+    function isFunctionEnable(){
+        var setting = document.getElementById('setting').value;
+        var params = {
+            setting:setting
+        };
+        var data = JSON.stringify(params);
+        uexDevice.isFunctionEnable(data);
+    }
+
+    function openSetting(){
+        var setting = document.getElementById('setting').value;
+        var params = {
+            setting:setting
+        };
+        var data = JSON.stringify(params);
+        uexDevice.openSetting(data);
+    }
 </script>
 </head>
 
@@ -191,7 +215,7 @@ window.uexOnload = function() {
             <div class="conbor">
                 <div class="consj">
                     输入震动持续时间（毫秒为单位）：
-                    <input type="text" class="textbox" id="time" value="500"></input> 
+                    <input type="text" class="textbox" id="time" value="500">
                     <input class="btn" type="button" value="震动" onclick="uexDevice.vibrate(document.getElementById('time').value);">
                     <input class="btn" type="button" value="停止震动"
                         onclick="uexDevice.cancelVibrate();">
@@ -224,6 +248,15 @@ window.uexOnload = function() {
                    value="获取屏幕亮度" onclick="uexDevice.getScreenBrightness();">
             <input class="btn" type="button"
                    value="打开wifi" onclick="uexDevice.openWiFiInterface();">
+
+            <br>
+            设置相关:
+            <input type="text" class="textbox" id="setting" value="network">
+            <input class="btn" type="button"
+                   value="功能是否开启" onclick="isFunctionEnable();">
+
+            <input class="btn" type="button"
+                   value="打开设置" onclick="openSetting();">
         </div>
     </div>
 </body>
