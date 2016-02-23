@@ -24,7 +24,6 @@ import android.provider.Settings;
 import android.telephony.TelephonyManager;
 import android.text.TextUtils;
 import android.util.DisplayMetrics;
-import android.util.Log;
 import android.view.Display;
 import android.view.View;
 import android.view.WindowManager;
@@ -50,7 +49,6 @@ import java.io.LineNumberReader;
 import java.lang.reflect.Method;
 import java.math.BigDecimal;
 import java.util.Date;
-import java.util.IllegalFormatCodePointException;
 
 public class EUExDevice extends EUExBase {
 
@@ -635,7 +633,6 @@ public class EUExDevice extends EUExBase {
                 bitmap.compress(Bitmap.CompressFormat.JPEG, (int) (quality * 100), fos);
                 fos.flush();
             }
-            bitmap.recycle();
             JSONObject jsonObject = new JSONObject();
             try {
                 jsonObject.put("savePath", file.getAbsolutePath());
