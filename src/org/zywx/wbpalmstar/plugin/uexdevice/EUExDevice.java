@@ -642,6 +642,7 @@ public class EUExDevice extends EUExBase {
             String js = SCRIPT_HEADER + "if(" + CALLBACK_NAME_DEVICE_SCREEN_CAPTURE + "){"
                     + CALLBACK_NAME_DEVICE_SCREEN_CAPTURE + "('" + jsonObject.toString() + "');}";
             onCallback(js);
+			decorview.destroyDrawingCache();
         } catch (IOException e) {
             e.printStackTrace();
         } finally {
