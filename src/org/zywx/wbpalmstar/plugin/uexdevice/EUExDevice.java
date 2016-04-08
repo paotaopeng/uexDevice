@@ -48,7 +48,10 @@ import java.io.InputStreamReader;
 import java.io.LineNumberReader;
 import java.lang.reflect.Method;
 import java.math.BigDecimal;
+import java.net.NetworkInterface;
+import java.util.Collections;
 import java.util.Date;
+import java.util.List;
 
 public class EUExDevice extends EUExBase {
 
@@ -547,15 +550,51 @@ public class EUExDevice extends EUExBase {
 	 */
 	private String getMacAddress() {
 		String macAddress = "unKnown";
-		WifiManager wifiMgr = (WifiManager) mContext
-				.getSystemService(Context.WIFI_SERVICE);
-		if (wifiMgr != null) {
-			WifiInfo info = wifiMgr.getConnectionInfo();
-			if (null != info) {
-				macAddress = info.getMacAddress();
+		if (Build.VERSION.SDK_INT>22){
+			macAddress=getWifiMacAddress();
+		}else{
+			WifiManager wifiMgr = (WifiManager) mContext
+					.getSystemService(Context.WIFI_SERVICE);
+			if (wifiMgr != null) {
+				WifiInfo info = wifiMgr.getConnectionInfo();
+				if (null != info) {
+					macAddress = info.getMacAddress();
+				}
 			}
 		}
 		return macAddress;
+	}
+
+	public static String getWifiMacAddress() {
+		try {
+			String interfaceName = "wlan0";
+			List<NetworkInterface> interfaces = Collections
+					.list(NetworkInterface.getNetworkInterfaces());
+			for (NetworkInterface intf : interfaces) {
+				if (!intf.getName().equalsIgnoreCase(interfaceName)) {
+					continue;
+				}
+
+				byte[] mac = intf.getHardwareAddress();
+				if (mac == null) {
+					return "";
+				}
+
+				StringBuilder buf = new StringBuilder();
+				for (byte aMac : mac) {
+					buf.append(String.format("%02X:", aMac));
+				}
+				if (buf.length() > 0) {
+					buf.deleteCharAt(buf.length() - 1);
+				}
+				return buf.toString();
+			}
+		} catch (Exception exp) {
+			if (BDebug.DEBUG) {
+				exp.printStackTrace();
+			}
+		}
+		return "";
 	}
 
 	private String getDeviceToken() {
