@@ -937,7 +937,17 @@ public class EUExDevice extends EUExBase {
         }
         int errorCode = openSetting(setting);
         resultVO.setErrorCode(errorCode);
-        callBackPluginJs(JsConst.CALLBACK_OPEN_SETTING, DataHelper.gson.toJson(resultVO));
+        String result = DataHelper.gson.toJson(resultVO);
+        callBackPluginJs(JsConst.CALLBACK_OPEN_SETTING, result);
+        String funcId = null;
+        if (params.length == 2) {
+            funcId = params[1];
+            try {
+                callbackToJs(Integer.parseInt(funcId), false, new JSONObject(result));
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }
         return resultVO;
     }
 

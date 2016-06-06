@@ -164,6 +164,15 @@
                value="获取屏幕亮度" onclick="alert(uexDevice.getScreenBrightness());">
         <input class="btn" type="button"
                value="打开wifi" onclick="uexDevice.openWiFiInterface();">
+        <input type="text" class="textbox" id="isFunctionEnable" value="GPS" />
+        <input class="btn" type="button"
+               value="isFunctionEnable" onclick="isFunctionEnable();">
+
+        <input type="text" class="textbox" id="openSetting" value="GPS" />
+        <input class="btn" type="button"
+               value="openSetting" onclick="openSetting();">
+
+
         <input class="btn" type="button" value="返回" onclick="uexWindow.close(-1);" />
     </div>
 </div>
