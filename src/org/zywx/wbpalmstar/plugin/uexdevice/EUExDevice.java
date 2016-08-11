@@ -666,16 +666,22 @@ public class EUExDevice extends EUExBase {
                 bitmap.compress(Bitmap.CompressFormat.JPEG, (int) (quality * 100), fos);
                 fos.flush();
             }
+            int error = EUExCallback.F_C_FAILED;
             final JSONObject jsonObject = new JSONObject();
             try {
                 jsonObject.put("savePath", file.getAbsolutePath());
+                error = EUExCallback.F_C_SUCCESS;
             } catch (JSONException e) {
                 e.printStackTrace();
             }
-            String js = SCRIPT_HEADER + "if(" + CALLBACK_NAME_DEVICE_SCREEN_CAPTURE + "){"
-                    + CALLBACK_NAME_DEVICE_SCREEN_CAPTURE + "('" + jsonObject.toString() + "');}";
-            onCallback(js);
-            callbackToJs(Integer.parseInt(funcId), false, jsonObject);
+            if(TextUtils.isEmpty(funcId)){
+                String js = SCRIPT_HEADER + "if(" + CALLBACK_NAME_DEVICE_SCREEN_CAPTURE + "){"
+                        + CALLBACK_NAME_DEVICE_SCREEN_CAPTURE + "('" + jsonObject.toString() + "');}";
+                onCallback(js);
+            }else {
+                callbackToJs(Integer.parseInt(funcId), false, error, jsonObject);
+            }
+
             decorview.destroyDrawingCache();
         } catch (IOException e) {
             e.printStackTrace();
@@ -888,7 +894,8 @@ public class EUExDevice extends EUExBase {
 
         boolean result = false;
         if (dataVO == null || TextUtils.isEmpty(dataVO.getSetting())){
-
+            errorCallback(0, 0, "error params");
+            return;
         }else{
             String setting = dataVO.getSetting().toUpperCase();
             resultVO.setSetting(dataVO.getSetting());
@@ -911,15 +918,10 @@ public class EUExDevice extends EUExBase {
             }
             resultVO.setIsEnable(result);
         }
-        callBackPluginJs(JsConst.CALLBACK_IS_FUNCTION_ENABLE, DataHelper.gson.toJson(resultVO));
-        if (null != funcId) {
-            try {
-                String vo = DataHelper.gson.toJson(resultVO);
-                JSONObject jsonObject = new JSONObject(vo);
-                callbackToJs(Integer.parseInt(funcId), false, jsonObject);
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
+        if(TextUtils.isEmpty(funcId)){
+            callBackPluginJs(JsConst.CALLBACK_IS_FUNCTION_ENABLE, DataHelper.gson.toJson(resultVO));
+        }else{
+            callbackToJs(Integer.parseInt(funcId), false, resultVO.isEnable() ? 0 : 1);
         }
     }
 
@@ -931,19 +933,21 @@ public class EUExDevice extends EUExBase {
         }
         FunctionDataVO dataVO = DataHelper.gson.fromJson(params[0], FunctionDataVO.class);
         String setting = null;
+        int error = EUExCallback.F_C_FAILED;
         if (!TextUtils.isEmpty(dataVO.getSetting())){
             setting = dataVO.getSetting().toUpperCase();
             resultVO.setSetting(dataVO.getSetting());
+            error = EUExCallback.F_C_SUCCESS;
         }
         int errorCode = openSetting(setting);
         resultVO.setErrorCode(errorCode);
         String result = DataHelper.gson.toJson(resultVO);
         callBackPluginJs(JsConst.CALLBACK_OPEN_SETTING, result);
         String funcId = null;
-        if (params.length == 2) {
+        if (params.length > 1) {
             funcId = params[1];
             try {
-                callbackToJs(Integer.parseInt(funcId), false, new JSONObject(result));
+                callbackToJs(Integer.parseInt(funcId), false, error, new JSONObject(result));
             } catch (JSONException e) {
                 e.printStackTrace();
             }

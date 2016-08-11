@@ -16,7 +16,7 @@
 
         window.uexOnload = function() {
             uexWidget.cbGetPushState=function(opId,dataType,data){
-                alert('opid:'+opid+',dataType:'+dataType+',data:'+data);
+                alert('opid:'+opId+',dataType:'+dataType+',data:'+data);
             }
             uexWidget.getPushState();
             uexWidget.setPushState(1);
@@ -71,20 +71,31 @@
             }
         }
 
-
-        var commonCallback = function(data) {
-            alert("callback:" + JSON.stringify(data));
-        }
-
         function openSetting(){
-            uexDevice.openSetting({setting:document.getElementById('openSetting').value}, commonCallback);
+            uexDevice.openSetting({setting:document.getElementById('openSetting').value}, function(error, data) {
+                if(!error){
+                    alert('打开成功:' + data.setting);
+                }else{
+                    alert('打开失败');
+                }
+            });
         }
         function isFunctionEnable(){
-            uexDevice.isFunctionEnable({setting:document.getElementById('isFunctionEnable').value}, commonCallback);
+            uexDevice.isFunctionEnable({setting:document.getElementById('isFunctionEnable').value}, function(error){
+                if(!error){
+                    alert('已开启');
+                }else{
+                    alert('未开启');
+                }
+            });
         }
         function screenCapture() {
-            uexDevice.screenCapture(0.8, function(data){
-                alert(JSON.stringify(data));
+            uexDevice.screenCapture(0.8, function(error,data){
+                if(!error){
+                    alert("成功，截图保存路径为:" + data.savePath);
+                }else{
+                    alert("失败");
+                }
                 document.getElementById('savePath').innerHTML = data.savePath;
             });
         }
