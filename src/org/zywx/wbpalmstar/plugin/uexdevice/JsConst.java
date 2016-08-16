@@ -9,4 +9,5 @@ public class JsConst {
     public static final int ERROR_CODE_SUCCESS = 0;
     public static final int ERROR_CODE_FAIL = 1;
     public static final int ERROR_CODE_ERROR_PARAMS = -1;
+    public static final String SETTING_CAMERA = "CAMERA";
 }

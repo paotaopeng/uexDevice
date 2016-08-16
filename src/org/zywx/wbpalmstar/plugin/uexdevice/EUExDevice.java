@@ -912,6 +912,8 @@ public class EUExDevice extends EUExBase {
                 }else {
                     result = true;
                 }
+            }else if(setting.equals(JsConst.SETTING_CAMERA)){
+                result = isCameraUsable();
             }else{
                 errorCallback(0,0,"error params");
                 return;
@@ -923,6 +925,20 @@ public class EUExDevice extends EUExBase {
         }else{
             callbackToJs(Integer.parseInt(funcId), false, resultVO.isEnable());
         }
+    }
+
+    private boolean isCameraUsable() {
+        boolean canUse = true;
+        Camera mCamera = null;
+        try {
+            mCamera = Camera.open();
+        } catch (Exception e) {
+            canUse = false;
+        }
+        if (canUse) {
+            mCamera.release();
+        }
+        return canUse;
     }
 
     public Object openSetting(final String [] params) {
