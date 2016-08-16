@@ -15,21 +15,11 @@
     <script type="text/javascript">
 
         window.uexOnload = function() {
-            uexWidget.cbGetPushState=function(opId,dataType,data){
-                alert('opid:'+opId+',dataType:'+dataType+',data:'+data);
-            }
-            uexWidget.getPushState();
-            uexWidget.setPushState(1);
-            uexWidget.getPushInfo();
             uexDevice.onOrientationChange = function(mode){
                 if(mode == 1){
                     document.getElementById('data').innerHTML ="正竖屏";
                 }else if(mode == 2){
                     document.getElementById('data').innerHTML ="左横屏";
-                }else if(mode == 4){
-                    document.getElementById('data').innerHTML ="倒竖屏";
-                }else if(mode == 8){
-                    document.getElementById('data').innerHTML ="右横屏";
                 }
             };
 
@@ -72,17 +62,11 @@
         }
 
         function openSetting(){
-            uexDevice.openSetting({setting:document.getElementById('openSetting').value}, function(error, data) {
-                if(!error){
-                    alert('打开成功:' + data.setting);
-                }else{
-                    alert('打开失败');
-                }
-            });
+            uexDevice.openSetting({setting:document.getElementById('openSetting').value});
         }
         function isFunctionEnable(){
-            uexDevice.isFunctionEnable({setting:document.getElementById('isFunctionEnable').value}, function(error){
-                if(!error){
+            uexDevice.isFunctionEnable({setting:document.getElementById('isFunctionEnable').value}, function(data){
+                if(data){
                     alert('已开启');
                 }else{
                     alert('未开启');

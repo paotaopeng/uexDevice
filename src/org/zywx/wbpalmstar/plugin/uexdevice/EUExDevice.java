@@ -921,7 +921,7 @@ public class EUExDevice extends EUExBase {
         if(TextUtils.isEmpty(funcId)){
             callBackPluginJs(JsConst.CALLBACK_IS_FUNCTION_ENABLE, DataHelper.gson.toJson(resultVO));
         }else{
-            callbackToJs(Integer.parseInt(funcId), false, resultVO.isEnable() ? 0 : 1);
+            callbackToJs(Integer.parseInt(funcId), false, resultVO.isEnable());
         }
     }
 
