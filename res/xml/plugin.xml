@@ -18,4 +18,5 @@
        <method name = "isFunctionEnable"/>
        <method name = "openSetting"/>
    </plugin>
+
 </uexplugins>

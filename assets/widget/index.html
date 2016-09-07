@@ -1,178 +1,60 @@
 <!DOCTYPE html>
-<html>
-<head>
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <meta name="viewport" content="target-densitydpi=device-dpi, width=device-width, initial-scale=1.0, user-scalable=no" />
-    <link rel="stylesheet" type="text/css" href="css/index.css" />
-    <link rel="stylesheet" href="css/ui-btn.css" />
-    <link rel="stylesheet" href="css/ui-base.css" />
-    <link rel="stylesheet" href="css/ui-box.css" />
-    <link rel="stylesheet" href="css/ui-color.css" />
-    <link rel="stylesheet" href="css/ui-res.css" />
-    <title>设备信息功能</title>
-    <script src="js/zy_control.js"> </script>
-    <script src="js/main.js"> </script>
-    <script type="text/javascript">
-
-        window.uexOnload = function() {
-            uexDevice.onOrientationChange = function(mode){
-                if(mode == 1){
-                    document.getElementById('data').innerHTML ="正竖屏";
-                }else if(mode == 2){
-                    document.getElementById('data').innerHTML ="左横屏";
-                }
-            };
-
-            uexWidgetOne.cbError=function(opCode,errorCode,errorInfo){
-                alert(errorInfo);
-            }
-        };
-
-
-        function getInfo(type) {
-            var data = uexDevice.getInfo(type);
-            if (type == 1) {
-                document.getElementById('osver').innerHTML = data;
-            }
-            if (type == 2) {
-                document.getElementById('manufacturer').innerHTML = data;
-            }
-            if (type == 10) {
-                document.getElementById('imei').innerHTML = data;
-            }
-
-            if (type == 13) {
-                document.getElementById('connectStatus').innerHTML = data;
-            }
-            if (type == 14) {
-                document.getElementById('restDiskSize').innerHTML = data;
-            }
-            if (type == 15) {
-                document.getElementById('mobileOperatorName').innerHTML = data;
-            }
-            if (type == 11) {
-                document.getElementById('deviceToken').innerHTML = data;
-            }
-            if (type == 17) {
-                document.getElementById('model').innerHTML = data;
-            }
-            if (type == 18) {
-                document.getElementById('resolutionRatio').innerHTML = data;
-            }
-        }
-
-        function openSetting(){
-            uexDevice.openSetting({setting:document.getElementById('openSetting').value});
-        }
-        function isFunctionEnable(){
-            uexDevice.isFunctionEnable({setting:document.getElementById('isFunctionEnable').value}, function(data){
-                if(data){
-                    alert('已开启');
-                }else{
-                    alert('未开启');
-                }
-            });
-        }
-        function screenCapture() {
-            uexDevice.screenCapture(0.8, function(error,data){
-                if(!error){
-                    alert("成功，截图保存路径为:" + data.savePath);
-                }else{
-                    alert("失败");
-                }
-                document.getElementById('savePath').innerHTML = data.savePath;
-            });
-        }
-
-    </script>
-</head>
-<body>
-<div class="tit">
-    设备信息功能
-</div>
-<div class="tit">
-    Device
-</div>
-<div class="conbor">
-    <div class="consj">
-        <span>0.打开设置界面:</span>
-        <span>1.获取系统版本:</span>
-        <input class="btn" type="button" value="系统版本" onclick="getInfo('1');" />
-        <div class="tcxx" id="osver"></div>
-        <span>2.获取厂商信息：</span>
-        <input class="btn" type="button" value="厂商信息" onclick="getInfo('2');" />
-        <div class="tcxx" id="manufacturer"></div>
-        <span>3.获取IMEI信息：</span>
-        <input class="btn" type="button" value="IMEI信息" onclick="getInfo('10');" />
-        <div class="tcxx" id="imei"></div>
-        <span>4.获取网络状态：</span>
-        <input class="btn" type="button" value="网络状态" onclick="getInfo('13');" />
-        <div class="tcxx" id="connectStatus"></div>
-        <span>5.获取磁盘剩余空间：</span>
-        <input class="btn" type="button" value="磁盘空间" onclick="getInfo('14');" />
-        <div class="tcxx" id="restDiskSize"></div>
-        <span>6.获取运营商的名称：</span>
-        <input class="btn" type="button" value="运营商名称" onclick="getInfo('15');" />
-        <div class="tcxx" id="mobileOperatorName"></div>
-        <span>7.获取DeviceToken：</span>
-        <input class="btn" type="button" value="DeviceToken" onclick="getInfo('11');" />
-        <div class="tcxx" id="deviceToken"></div>
-        <span>8.获取UUID(仅iOS有效)：</span>
-        <input class="btn" type="button" value="UUID" onclick="getInfo('20');" />
-        <div class="tcxx" id="softToken"></div>
-        <span>9.获取硬件型号：</span>
-        <input class="btn" type="button" value="型号" onclick="getInfo('17');" />
-        <div class="tcxx" id="model"></div>
-        <span>10.获取手机分辨率：</span>
-        <input class="btn" type="button" value="分辨率" onclick="getInfo('18');" />
-        <div class="tcxx" id="resolutionRatio"></div>
-        <span>11.手机震动测试</span>
-        <div class="conbor">
-            <div class="consj">
-                输入震动持续时间（毫秒为单位）：
-                <input type="text" class="textbox" id="time" value="500" />
-                <input class="btn" type="button" value="震动" onclick="uexDevice.vibrate(document.getElementById('time').value);" />
-                <input class="btn" type="button" value="停止震动" onclick="uexDevice.cancelVibrate();" />
+<html class="um landscape min-width-240px min-width-320px min-width-480px min-width-768px min-width-1024px">
+    
+    <head>
+        <title>
+        </title>
+        <meta charset="utf-8">
+        <meta name="viewport" content="target-densitydpi=device-dpi, width=device-width, initial-scale=1, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+        <link rel="stylesheet" href="css/fonts/font-awesome.min.css">
+        <link rel="stylesheet" href="css/ui-box.css">
+        <link rel="stylesheet" href="css/ui-base.css">
+        <link rel="stylesheet" href="css/ui-color.css">
+        <link rel="stylesheet" href="css/appcan.icon.css">
+        <link rel="stylesheet" href="css/appcan.control.css">
+        <link rel="stylesheet" href="./css/index.css">
+        <script src="js/eruda.min.js"></script>
+        <script src="./js/index.js">
+        </script>
+    </head>
+    
+    <body class="" ontouchstart>
+        <div class="bc-bg" tabindex="0" data-control="PAGE" id="Page_ylUCGd">
+            <div class="uh bc-head  ubb bc-border" data-control="HEADER" id="Header_bPMcMr">
+                <div class="ub">
+                    <div class="nav-btn" id="nav-left">
+                        <div class="fa fa-1g ub-img1">
+                        </div>
+                    </div>
+                    <h1 class="ut ub-f1 ulev-3 ut-s tx-c" tabindex="0">测试系统</h1>
+                    <div class="nav-btn" id="nav-right">
+                        <div class="fa  fa-1g  ub-img1">
+                        </div>
+                    </div>
+                </div>
             </div>
-        </div>
-        <span>12.屏幕截图测试</span>
-        <input class="btn" type="button" value="截图路径为" onclick="screenCapture();" />
-        <div class="tcxx" id="savePath"></div>
-        <span>13.屏幕方向切换测试</span>
-        <div class="conbor">
-            <div class="consj">
-                当前的屏幕方向为(需要开启设备的屏幕旋转功能)：
-                <div class="tcxx" id="data"></div>
+            <div class="" data-control="BOX">
+                <div class="button ub ub-ac bc-text-head ub-pc bc-btn" id="Button_DgxEcP" onclick="openTestCase('uexFileMgr')">uexFileMgr</div>
             </div>
+            <div class="" data-control="BOX">
+                <div class="button ub ub-ac bc-text-head ub-pc bc-btn" id="uexXmlHttpMgr" onclick='openTestCase("uexXMLHttpMgr")'>uexXmlHttpMgr</div>
+            </div>
+            <div class="button ub ub-ac bc-text-head ub-pc bc-btn" id="uexUploaderMgr" onclick='openTestCase("uexUploaderMgr")'>uexUploaderMgr</div>
+            <div class="button ub ub-ac bc-text-head ub-pc bc-btn" id="uexDatabaseMgr" onclick='openTestCase("uexDatabaseMgr")'>uexDatabaseMgr</div>
+            <div class="button ub ub-ac bc-text-head ub-pc bc-btn" id="uexDevice" onclick='openTestCase("uexDevice")'>uexDevice</div>
+
         </div>
-        <input class="btn" type="button"
-               value="听筒和扩音器的切换" onclick="uexDevice.setAudioCategory('1');">
-        <input class="btn" type="button"
-               value="设置音量" onclick="uexDevice.setVolume('1');">
-        <input class="btn" type="button"
-               value="获取音量" onclick="alert(uexDevice.getVolume());">
-        <input class="btn" type="button"
-               value="屏幕常亮控制" onclick="uexDevice.setScreenAlwaysBright(1);">
-        <input class="btn" type="button"
-               value="设置屏幕亮度" onclick="uexDevice.setScreenBrightness(0.9);">
-        <input class="btn" type="button"
-               value="获取屏幕亮度" onclick="alert(uexDevice.getScreenBrightness());">
-        <input class="btn" type="button"
-               value="打开wifi" onclick="uexDevice.openWiFiInterface();">
-        <input type="text" class="textbox" id="isFunctionEnable" value="Camera" />
-        <input class="btn" type="button"
-               value="isFunctionEnable" onclick="isFunctionEnable();">
+        <script src="js/appcan.js">
+        </script>
+        <script src="js/appcan.control.js">
+        </script>
+        <script src="js/appcan.scrollbox.js">
+        </script>
+        <script src="js/template.import.js">
+        </script>
+        <script src="./assets/mvvm/index.js">
+        </script>
 
-        <input type="text" class="textbox" id="openSetting" value="Camera" />
-        <input class="btn" type="button"
-               value="openSetting" onclick="openSetting();">
+    </body>
 
-
-        <input class="btn" type="button" value="返回" onclick="uexWindow.close(-1);" />
-    </div>
-</div>
-<script>
-
-</script>
-</body>
 </html>
