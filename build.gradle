@@ -9,8 +9,9 @@ buildscript {
         // in the individual module build.gradle files
     }
 }
-//apply plugin: 'com.android.library'
+
 apply plugin: 'com.android.application'
+
 repositories {
     flatDir {
         dirs 'libs'
@@ -19,14 +20,18 @@ repositories {
         url 'https://raw.githubusercontent.com/android-plugin/mvn-repo/master/'
     }
 }
+
 dependencies {
     compile fileTree(dir: 'libs', include: '*.jar')
+    //compile(name: 'Engine-system-release-4.0.0', ext: 'aar')//依赖本地引擎
     compile 'org.appcan:engine:+:systemRelease@aar'
+    //依赖远程引擎
+    compile(name: "uexFileMgr-debug", ext: 'aar')
 }
 
 android {
-    compileSdkVersion 23
-    buildToolsVersion "23.0.0"
+    compileSdkVersion 22
+    buildToolsVersion '23.0.2'
     lintOptions {
         abortOnError false
     }
@@ -57,19 +62,19 @@ android {
         // by a similar customization.
         debug.setRoot('build-types/debug')
         release.setRoot('build-types/release')
+
+        defaultConfig {
+            minSdkVersion 14
+        }
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_6
+        targetCompatibility JavaVersion.VERSION_1_6
     }
     defaultConfig {
-        minSdkVersion 14
+        applicationId 'org.zywx.wbpalmstar.widgetone.uexdevice'
     }
     productFlavors {
-    }
-    buildTypes {
-        debug {
-            minifyEnabled false
-        }
-        release {
-            minifyEnabled false
-        }
     }
 }
 
