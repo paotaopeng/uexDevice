@@ -17,6 +17,7 @@
        <method name="getScreenBrightness" />
        <method name = "isFunctionEnable"/>
        <method name = "openSetting"/>
+       <method name = "getIP"/>
    </plugin>
 
 </uexplugins>

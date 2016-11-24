@@ -1,5 +1,17 @@
 if (UNIT_TEST) {
     var uexDeviceCase = {
+        "getIP": function() {
+
+            var ip = uexDevice.getIP();
+            if (ip) {
+                UNIT_TEST.log("ip:" + ip);
+                UNIT_TEST.assert(true);
+            } else {
+                UNIT_TEST.assert(false);
+            }
+
+
+        },
         "vibrate":function(){
             uexDevice.vibrate(1000);
             UNIT_TEST.assert(true);
