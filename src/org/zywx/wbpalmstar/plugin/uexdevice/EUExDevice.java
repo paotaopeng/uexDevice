@@ -3,8 +3,10 @@ package org.zywx.wbpalmstar.plugin.uexdevice;
 import android.app.Activity;
 import android.app.Service;
 import android.content.ActivityNotFoundException;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
@@ -63,6 +65,7 @@ public class EUExDevice extends EUExBase {
     public static final String CALLBACK_NAME_DEVICE_GET_BRIGHTNESS = "uexDevice.cbGetScreenBrightness";
 
     public static final String onFunction_orientationChange = "uexDevice.onOrientationChange";
+    public static final String ON_NET_STATUS_CHANGED = "uexDevice.onNetStatusChanged";
 
     public static final int F_DEVICE_INFO_ID_ORIENTATION_PORTRAIT = 1; // 竖屏
     public static final int F_DEVICE_INFO_ID_ORIENTATION_LANDSCAPE = 2;// 横屏
@@ -72,14 +75,28 @@ public class EUExDevice extends EUExBase {
     public static final int F_JV_CONNECT_GPRS = 2;
     public static final int F_JV_CONNECT_4G = 3;
     public static final int F_JV_CONNECT_UNKNOWN = 4;
+    private EUExDevice mEUExDevice;
 
     private Vibrator m_v;
 
     private ResoureFinder finder;
+    private static ConnectChangeReceiver mConnectChangeReceiver;
+
+    private class ConnectChangeReceiver extends BroadcastReceiver {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if (intent != null && ConnectivityManager.CONNECTIVITY_ACTION
+                    .equals(intent.getAction())) {
+                callBackPluginJs(ON_NET_STATUS_CHANGED,
+                        String.valueOf(getNetworkStatus(context)));
+            }
+        }
+    }
 
     public EUExDevice(Context context, EBrowserView inParent) {
         super(context, inParent);
         finder = ResoureFinder.getInstance(context);
+        mEUExDevice = this;
     }
 
     /**
@@ -189,7 +206,7 @@ public class EUExDevice extends EUExBase {
                     break;
                 case EUExCallback.F_C_CONNECT_STATUS:
                     outKey = EUExCallback.F_JK_CONNECTION_STATUS;
-                    outStr = String.valueOf(getNetworkStatus());
+                    outStr = String.valueOf(getNetworkStatus(mContext));
                     break;
                 case EUExCallback.F_C_REST_DISK_SIZE:
                     outKey = EUExCallback.F_JK_REST_DISK_SIZE;
@@ -461,10 +478,10 @@ public class EUExDevice extends EUExBase {
         return support;
     }
 
-    private int getNetworkStatus() {
+    private int getNetworkStatus(Context context) {
         int status = F_JV_CONNECT_UNREACHABLE;
         try {
-            ConnectivityManager cm = (ConnectivityManager) mContext
+            ConnectivityManager cm = (ConnectivityManager) context
                     .getApplicationContext().getSystemService(
                             Context.CONNECTIVITY_SERVICE);
             if (cm != null) {
@@ -472,7 +489,7 @@ public class EUExDevice extends EUExBase {
                 if (info != null && info.isAvailable()) {
                     switch (info.getType()) {
                     case ConnectivityManager.TYPE_MOBILE:
-                        TelephonyManager telephonyManager = (TelephonyManager) mContext
+                        TelephonyManager telephonyManager = (TelephonyManager) context
                                 .getSystemService(Context.TELEPHONY_SERVICE);
                         switch (telephonyManager.getNetworkType()) {
                         case TelephonyManager.NETWORK_TYPE_1xRTT:
@@ -509,7 +526,7 @@ public class EUExDevice extends EUExBase {
                 }
             }
         } catch (SecurityException e) {
-            Toast.makeText(mContext, finder.getString("no_permisson_declare"),
+            Toast.makeText(context, finder.getString("no_permisson_declare"),
                     Toast.LENGTH_SHORT).show();
         }
         return status;
@@ -906,7 +923,7 @@ public class EUExDevice extends EUExBase {
             }else if(setting.equals(JsConst.SETTING_BLUETOOTH)){
                 result = DeviceUtils.isBluetoothEnable();
             }else if (setting.equals(JsConst.SETTING_NETWORK)){
-                int connectionStatus = getNetworkStatus();
+                int connectionStatus = getNetworkStatus(mContext);
                 if (connectionStatus == F_JV_CONNECT_UNREACHABLE
                         || connectionStatus == F_JV_CONNECT_UNKNOWN){
                     result = false;
@@ -1007,4 +1024,28 @@ public class EUExDevice extends EUExBase {
         }
         return JsConst.ERROR_CODE_SUCCESS;
     }
+
+    public void startNetStatusListener(String[] params) {
+        if (mEUExDevice != null) {
+            mEUExDevice.registerReceiver();
+        }
+    }
+
+    public void stopNetStatusListener(String[] params) {
+        if (mEUExDevice != null) {
+            mEUExDevice.unregisterReceiver();
+        }
+    }
+    private void registerReceiver() {
+        IntentFilter filter = new IntentFilter(
+                ConnectivityManager.CONNECTIVITY_ACTION);
+        mConnectChangeReceiver = new ConnectChangeReceiver();
+        mContext.registerReceiver(mConnectChangeReceiver, filter);
+    }
+
+    private void unregisterReceiver() {
+        if (mConnectChangeReceiver != null)
+            mContext.unregisterReceiver(mConnectChangeReceiver);
+    }
+
 }
