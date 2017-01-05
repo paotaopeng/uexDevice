@@ -142,6 +142,16 @@ if (UNIT_TEST) {
                 }
                 UNIT_TEST.assert(true);
             });
+        },
+        "startNetStatusListener":function(){
+            uexDevice.startNetStatusListener();
+            UNIT_TEST.log("已开启网络状态监听");
+            UNIT_TEST.assert(true);
+        },
+        "stopNetStatusListener":function(){
+            uexDevice.stopNetStatusListener();
+            UNIT_TEST.log("已停止网络状态监听");
+            UNIT_TEST.assert(true);
         }
     };
 
