@@ -1,16 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <uexplugins>
     <plugin
-        uexName="uexDevice" version="4.0.9" build="9">
-        <info>9.增加网络状态监听的功能</info>
-        <build>8.新增获取ip接口</build>
-        <build>7.支持function传入</build>
-        <build>6.Android6.0支持获取wifi mac地址</build>
-        <build>5.修复多次截图都是同一张图片的问题</build>
-        <build>4.解决多次截屏失效的问题</build>
-        <build>3.添加判断功能是否开启，以及打开设置界面接口</build>
-        <build>2.添加截图，听筒和扩音器切换， 设置/获取音量等接口</build>
-        <build>1:解决移动网络在4G转3g的时候，返回无网络问题</build>
+        uexName="uexDevice" version="4.0.2" build="2">
+        <info>2.增加网络状态监听的功能</info>
+        <build>1.新增获取ip接口</build>
         <build>0:设备能力功能插件</build>
     </plugin>
 </uexplugins>
