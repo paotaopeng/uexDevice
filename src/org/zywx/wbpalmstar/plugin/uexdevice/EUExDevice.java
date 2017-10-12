@@ -19,7 +19,6 @@ import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.os.Build;
 import android.os.Environment;
-import android.os.PowerManager;
 import android.os.StatFs;
 import android.os.Vibrator;
 import android.provider.Settings;
@@ -619,7 +618,7 @@ public class EUExDevice extends EUExBase {
 
     private String getDeviceToken() {
         SharedPreferences preferences = mContext.getSharedPreferences("app",
-                Context.MODE_WORLD_READABLE);
+                Context.MODE_PRIVATE);
         return preferences.getString("softToken", null);
     }
 
@@ -826,13 +825,10 @@ public class EUExDevice extends EUExBase {
             Toast.makeText(mContext, finder.getString("plugin_uexDevice_invalid_params"), Toast.LENGTH_SHORT).show();
             return;
         }
-        PowerManager powerManager = (PowerManager) mContext.getSystemService(Activity.POWER_SERVICE);
-        PowerManager.WakeLock wakeLock = powerManager.newWakeLock(PowerManager.FULL_WAKE_LOCK, "My Lock");
-        wakeLock.setReferenceCounted(false);
         if (status == 1) {
-            wakeLock.acquire();
+            ((Activity) mContext).getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         } else {
-            wakeLock.release();
+            ((Activity) mContext).getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         }
     }
 

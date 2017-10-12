@@ -1,8 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <uexplugins>
     <plugin
-        uexName="uexDevice" version="4.0.2" build="2">
-        <info>2.增加网络状态监听的功能</info>
+        uexName="uexDevice" version="4.0.4" build="4">
+        <info>4.开启关闭屏幕常亮失效</info>
+        <build>3.修改SharedPreferences的读写权限</build>
+        <build>2.增加网络状态监听的功能</build>
         <build>1.新增获取ip接口</build>
         <build>0:设备能力功能插件</build>
     </plugin>
