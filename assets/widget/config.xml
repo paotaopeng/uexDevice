@@ -12,8 +12,8 @@
 	<obfuscation>false</obfuscation>
 	<bgcolor>#fefefe</bgcolor>
 	<orientation>1</orientation>
-	<debug enable="true" verbose="true"/>
-<debug/>
+	<debug>true</debug>
+	<logserverip>192.168.1.101</logserverip>
 <partobfuscation>false</partobfuscation>
 <webapp/>
 <config desc="uexALiBaiChuan" type="URLSCHEME"> 

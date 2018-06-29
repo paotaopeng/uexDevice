@@ -8,6 +8,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
+import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.hardware.Camera;
@@ -28,6 +29,7 @@ import android.text.format.Formatter;
 import android.util.DisplayMetrics;
 import android.view.Display;
 import android.view.View;
+import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Toast;
 
@@ -126,6 +128,25 @@ public class EUExDevice extends EUExBase {
             } catch (SecurityException e) {
                 ;
             }
+        }
+    }
+
+    /**
+     *
+     * @param params 设置屏幕方向1为竖屏，0为横屏
+     */
+    public void setOrientation(String[] params) {
+        int orientation=1;
+        if(null==params || params.length!=1){
+            Toast.makeText(mContext,
+                    "设置的参数不对",
+                    Toast.LENGTH_SHORT).show();
+        }
+        orientation=Integer.parseInt(params[0]);
+        if(orientation==ActivityInfo.SCREEN_ORIENTATION_PORTRAIT){
+            ((Activity)mContext).setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+        }else if(orientation==ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE){
+            ((Activity)mContext).setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
         }
     }
 
@@ -1043,5 +1064,46 @@ public class EUExDevice extends EUExBase {
         if (mConnectChangeReceiver != null)
             mContext.unregisterReceiver(mConnectChangeReceiver);
     }
+
+    public void hideStatusBar(String[] params) {
+        View decorView = ((Activity) mContext).getWindow().getDecorView();
+        int systemUiVisibility = decorView.getSystemUiVisibility();
+        int flags = View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                | View.SYSTEM_UI_FLAG_FULLSCREEN
+                | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY;
+        systemUiVisibility |= flags;
+        decorView.setSystemUiVisibility(systemUiVisibility);
+    }
+
+    public void showStatusBar(String[] params) {
+        Window window = ((Activity) mContext).getWindow();
+        View decorView = window.getDecorView();
+        int systemUiVisibility = decorView.getSystemUiVisibility();
+        int flags = View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                | View.SYSTEM_UI_FLAG_FULLSCREEN
+                | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY;
+        systemUiVisibility &= ~flags;
+        decorView.setSystemUiVisibility(systemUiVisibility);
+    }
+
+    /**
+     * 设置状态栏颜色
+     */
+    public void setStatusBarTransparent(String[] param) {
+        Window window = ((Activity) mContext).getWindow();
+//        View decorView = window.getDecorView();
+//        int systemUiVisibility = decorView.getSystemUiVisibility();
+//        int flags = View.SYSTEM_UI_FLAG_FULLSCREEN
+//        | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN;
+//        systemUiVisibility |= flags;
+//        decorView.setSystemUiVisibility(systemUiVisibility);
+        window.addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
+    }
+
+
+
 
 }

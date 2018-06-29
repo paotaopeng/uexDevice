@@ -1,7 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <uexplugins>
     <plugin
-        uexName="uexDevice" version="4.0.4" build="4">
+        uexName="uexDevice" version="4.0.7" build="7">
+        <build>7.增加设置状态栏透明的方法</build>
+        <build>6.增加显示隐藏状态栏的方法</build>
+        <build>5.新增设置屏幕方向功能</build>
         <info>4.开启关闭屏幕常亮失效</info>
         <build>3.修改SharedPreferences的读写权限</build>
         <build>2.增加网络状态监听的功能</build>

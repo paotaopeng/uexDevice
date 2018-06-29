@@ -20,5 +20,9 @@
         <method name = "getIP"/>
         <method name = "startNetStatusListener"/>
         <method name = "stopNetStatusListener"/>
+        <method name = "setOrientation"/>
+        <method name = "showStatusBar"/>
+        <method name = "hideStatusBar"/>
+        <method name = "setStatusBarTransparent"/>
     </plugin>
 </uexplugins>
